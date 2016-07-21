@@ -1,14 +1,17 @@
-# Paperclip::Oss
+# paperclip-oss
 
-Welcome to your new gem! In this directory, you'll find the files you need to be able to package up your Ruby library into a gem. Put your Ruby code in the file `lib/paperclip/oss`. To experiment with that code, run `bin/console` for an interactive prompt.
+A [Paperclip](https://github.com/thoughtbot/paperclip) plugin enables upload to Aliyun OSS.
 
-TODO: Delete this and the text above, and describe your gem
+Dependency [aliyun-sdk](https://github.com/aliyun/aliyun-oss-ruby-sdk).
+
+This gem is different from [paperclip-storage-aliyun](https://github.com/Martin91/paperclip-storage-aliyun) which does NOT depend on aliyun-sdk. Pick your own flavor.
 
 ## Installation
 
-Add this line to your application's Gemfile:
+Add these lines to your application's Gemfile:
 
 ```ruby
+gem 'paperclip'
 gem 'paperclip-oss'
 ```
 
@@ -22,7 +25,35 @@ Or install it yourself as:
 
 ## Usage
 
-TODO: Write usage instructions here
+* create `config/initializers/paperclip.rb` or your program initializer. code configation as follow:
+
+```
+Paperclip::Attachment.default_options[:storage] = :oss
+Paperclip::Attachment.default_options[:oss] = {
+  endpoint: 'http://oss-us-west-1.aliyuncs.com', # change this to ur data center endpoint
+  access_key_id: ENV['OSS_ACCESS_KEY_ID'],
+  access_key_secret: ENV['OSS_ACCESS_KEY_SECRET'],
+  bucket: ENV['OSS_BUCKET'],
+}
+```
+
+* add paperclip config in your model:
+
+```
+class User < ActiveRecord::Base
+
+    has_attached_file :avatar,
+        styles: { medium: "300x300>", thumb: "100x100>" },
+        default_url: "/images/:style/missing.png",
+        path: 'path/to/ur/files/:class/:attachment/:id_partition/:style/:filename'
+
+    # validates :avatar, :attachment_presence => true
+    validates_attachment_content_type :avatar, :content_type => /\Aimage\/.*\Z/
+
+end
+```
+## TODO
+Add more tests.
 
 ## Development
 
